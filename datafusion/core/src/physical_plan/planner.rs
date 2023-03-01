@@ -95,7 +95,8 @@ fn create_function_physical_name(
     Ok(format!("{}({}{})", fun, distinct_str, names.join(",")))
 }
 
-fn physical_name(e: &Expr) -> Result<String> {
+/// Returns a readable name of an expression for physical plan.
+pub fn physical_name(e: &Expr) -> Result<String> {
     create_physical_name(e, true)
 }
 
