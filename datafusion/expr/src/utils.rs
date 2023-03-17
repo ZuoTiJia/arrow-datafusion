@@ -722,10 +722,14 @@ pub fn from_plan(
         })),
         LogicalPlan::TableScan(ts) => {
             assert!(inputs.is_empty(), "{plan:?}  should have no inputs");
-            Ok(LogicalPlan::TableScan(TableScan {
-                filters: expr.to_vec(),
-                ..ts.clone()
-            }))
+            if ts.is_aggregate_filter_scan() {
+                Ok(plan.clone())
+            } else {
+                Ok(LogicalPlan::TableScan(TableScan {
+                    filters: expr.to_vec(),
+                    ..ts.clone()
+                }))
+            }
         }
         LogicalPlan::EmptyRelation(_)
         | LogicalPlan::CreateExternalTable(_)

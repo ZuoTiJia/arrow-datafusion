@@ -30,6 +30,7 @@ use datafusion::physical_plan::{
     project_schema, ExecutionPlan, SendableRecordBatchStream, Statistics,
 };
 use datafusion::prelude::*;
+use datafusion_expr::logical_plan::AggWithGrouping;
 use datafusion_expr::{Expr, LogicalPlanBuilder};
 use std::any::Any;
 use std::collections::{BTreeMap, HashMap};
@@ -178,6 +179,7 @@ impl TableProvider for CustomDataSource {
         projection: Option<&Vec<usize>>,
         // filters and limit can be used here to inject some push-down operations if needed
         _filters: &[Expr],
+        _agg_with_grouping: Option<&AggWithGrouping>,
         _limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         return self.create_physical_plan(projection, self.schema()).await;

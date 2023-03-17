@@ -24,6 +24,7 @@ use datafusion::{
     },
     datasource::{TableProvider, TableType},
 };
+use datafusion_expr::logical_plan::AggWithGrouping;
 use datafusion_expr::Expr;
 
 use super::*;
@@ -106,6 +107,7 @@ async fn information_schema_tables_table_types() {
             _state: &SessionState,
             _: Option<&Vec<usize>>,
             _: &[Expr],
+            _: Option<&AggWithGrouping>,
             _: Option<usize>,
         ) -> Result<Arc<dyn ExecutionPlan>> {
             unimplemented!()

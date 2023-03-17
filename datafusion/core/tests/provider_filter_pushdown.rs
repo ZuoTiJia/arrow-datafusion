@@ -34,6 +34,7 @@ use datafusion::scalar::ScalarValue;
 use datafusion_common::cast::as_primitive_array;
 use datafusion_common::DataFusionError;
 use datafusion_expr::expr::{BinaryExpr, Cast};
+use datafusion_expr::logical_plan::AggWithGrouping;
 use std::ops::Deref;
 use std::sync::Arc;
 
@@ -146,6 +147,7 @@ impl TableProvider for CustomProvider {
         _state: &SessionState,
         _: Option<&Vec<usize>>,
         filters: &[Expr],
+        _agg_with_grouping: Option<&AggWithGrouping>,
         _: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         match &filters[0] {

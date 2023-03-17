@@ -38,6 +38,7 @@ use datafusion::{
 use datafusion::{error::Result, physical_plan::DisplayFormatType};
 
 use datafusion_common::cast::as_primitive_array;
+use datafusion_expr::logical_plan::AggWithGrouping;
 use futures::stream::Stream;
 use std::any::Any;
 use std::pin::Pin;
@@ -194,6 +195,7 @@ impl TableProvider for CustomTableProvider {
         _state: &SessionState,
         projection: Option<&Vec<usize>>,
         _filters: &[Expr],
+        _agg_with_grouping: Option<&AggWithGrouping>,
         _limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         Ok(Arc::new(CustomExecutionPlan {

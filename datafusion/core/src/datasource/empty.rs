@@ -22,6 +22,7 @@ use std::sync::Arc;
 
 use arrow::datatypes::*;
 use async_trait::async_trait;
+use datafusion_expr::logical_plan::AggWithGrouping;
 
 use crate::datasource::{TableProvider, TableType};
 use crate::error::Result;
@@ -71,6 +72,7 @@ impl TableProvider for EmptyTable {
         _state: &SessionState,
         projection: Option<&Vec<usize>>,
         _filters: &[Expr],
+        _agg_with_grouping: Option<&AggWithGrouping>,
         _limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         // even though there is no data, projections apply

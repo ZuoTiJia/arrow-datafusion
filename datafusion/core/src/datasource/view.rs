@@ -21,7 +21,9 @@ use std::{any::Any, sync::Arc};
 
 use arrow::datatypes::SchemaRef;
 use async_trait::async_trait;
-use datafusion_expr::{LogicalPlanBuilder, TableProviderFilterPushDown};
+use datafusion_expr::{
+    logical_plan::AggWithGrouping, LogicalPlanBuilder, TableProviderFilterPushDown,
+};
 
 use crate::{
     error::Result,
@@ -106,6 +108,7 @@ impl TableProvider for ViewTable {
         state: &SessionState,
         projection: Option<&Vec<usize>>,
         filters: &[Expr],
+        _agg_with_grouping: Option<&AggWithGrouping>,
         limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         let plan = if let Some(projection) = projection {

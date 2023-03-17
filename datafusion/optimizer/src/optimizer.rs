@@ -32,6 +32,7 @@ use crate::filter_null_join_keys::FilterNullJoinKeys;
 use crate::inline_table_scan::InlineTableScan;
 use crate::merge_projection::MergeProjection;
 use crate::propagate_empty_relation::PropagateEmptyRelation;
+use crate::push_down_aggregation::PushDownAggregation;
 use crate::push_down_filter::PushDownFilter;
 use crate::push_down_limit::PushDownLimit;
 use crate::push_down_projection::PushDownProjection;
@@ -236,6 +237,7 @@ impl Optimizer {
             Arc::new(PushDownLimit::new()),
             Arc::new(PushDownFilter::new()),
             Arc::new(SingleDistinctToGroupBy::new()),
+            Arc::new(PushDownAggregation::new()),
             // The previous optimizations added expressions and projections,
             // that might benefit from the following rules
             Arc::new(SimplifyExpressions::new()),

@@ -20,7 +20,9 @@
 use crate::datasource::TableProvider;
 use arrow::datatypes::SchemaRef;
 use datafusion_common::DataFusionError;
-use datafusion_expr::{Expr, TableProviderFilterPushDown, TableSource};
+use datafusion_expr::{
+    Expr, TableProviderAggregationPushDown, TableProviderFilterPushDown, TableSource,
+};
 use std::any::Any;
 use std::sync::Arc;
 
@@ -63,6 +65,19 @@ impl TableSource for DefaultTableSource {
 
     fn get_logical_plan(&self) -> Option<&datafusion_expr::LogicalPlan> {
         self.table_provider.get_logical_plan()
+    }
+
+    fn supports_aggregate_pushdown(
+        &self,
+        group_expr: &[Expr],
+        aggr_expr: &[Expr],
+    ) -> datafusion_common::Result<TableProviderAggregationPushDown> {
+        self.table_provider
+            .supports_aggregate_pushdown(group_expr, aggr_expr)
+    }
+
+    fn table_type(&self) -> datafusion_expr::TableType {
+        datafusion_expr::TableType::Base
     }
 }
 

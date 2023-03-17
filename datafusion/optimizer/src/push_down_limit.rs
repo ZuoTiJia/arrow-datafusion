@@ -125,6 +125,7 @@ impl OptimizerRule for PushDownLimit {
                         filters: scan.filters.clone(),
                         fetch: scan.fetch.map(|x| min(x, limit)).or(Some(limit)),
                         projected_schema: scan.projected_schema.clone(),
+                        agg_with_grouping: scan.agg_with_grouping.clone(),
                     });
                     Some(plan.with_new_inputs(&[new_input])?)
                 }

@@ -550,6 +550,7 @@ fn push_down_scan(
         projected_schema,
         filters: scan.filters.clone(),
         fetch: scan.fetch,
+        agg_with_grouping: scan.agg_with_grouping.clone(),
     }))
 }
 

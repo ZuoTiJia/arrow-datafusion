@@ -20,6 +20,7 @@
 //! repeatedly queried without incurring additional file I/O overhead.
 
 use futures::{StreamExt, TryStreamExt};
+use datafusion_expr::logical_plan::AggWithGrouping;
 use std::any::Any;
 use std::sync::Arc;
 
@@ -74,7 +75,7 @@ impl MemTable {
         state: &SessionState,
     ) -> Result<Self> {
         let schema = t.schema();
-        let exec = t.scan(state, None, &[], None).await?;
+        let exec = t.scan(state, None, &[], None, None).await?;
         let partition_count = exec.output_partitioning().partition_count();
 
         let tasks = (0..partition_count)
@@ -145,6 +146,7 @@ impl TableProvider for MemTable {
         _state: &SessionState,
         projection: Option<&Vec<usize>>,
         _filters: &[Expr],
+        _agg_with_grouping: Option<&AggWithGrouping>,
         _limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         let batches = &self.batches.read().await;
@@ -271,7 +273,7 @@ mod tests {
 
         // scan with projection
         let exec = provider
-            .scan(&session_ctx.state(), Some(&vec![2, 1]), &[], None)
+            .scan(&session_ctx.state(), Some(&vec![2, 1]), &[], None, None)
             .await?;
 
         let mut it = exec.execute(0, task_ctx)?;
@@ -305,7 +307,9 @@ mod tests {
 
         let provider = MemTable::try_new(schema, vec![vec![batch]])?;
 
-        let exec = provider.scan(&session_ctx.state(), None, &[], None).await?;
+        let exec = provider
+            .scan(&session_ctx.state(), None, &[], None, None)
+            .await?;
         let mut it = exec.execute(0, task_ctx)?;
         let batch1 = it.next().await.unwrap()?;
         assert_eq!(3, batch1.schema().fields().len());
@@ -338,7 +342,7 @@ mod tests {
         let projection: Vec<usize> = vec![0, 4];
 
         match provider
-            .scan(&session_ctx.state(), Some(&projection), &[], None)
+            .scan(&session_ctx.state(), Some(&projection), &[], None, None)
             .await
         {
             Err(DataFusionError::ArrowError(ArrowError::SchemaError(e))) => {
@@ -464,7 +468,9 @@ mod tests {
         let provider =
             MemTable::try_new(Arc::new(merged_schema), vec![vec![batch1, batch2]])?;
 
-        let exec = provider.scan(&session_ctx.state(), None, &[], None).await?;
+        let exec = provider
+            .scan(&session_ctx.state(), None, &[], None, None)
+            .await?;
         let mut it = exec.execute(0, task_ctx)?;
         let batch1 = it.next().await.unwrap()?;
         assert_eq!(3, batch1.schema().fields().len());

@@ -24,6 +24,7 @@ use arrow::datatypes::SchemaRef;
 use async_trait::async_trait;
 
 use datafusion_common::{DataFusionError, Result};
+use datafusion_expr::logical_plan::AggWithGrouping;
 use datafusion_expr::{Expr, TableType};
 
 use crate::datasource::TableProvider;
@@ -81,6 +82,7 @@ impl TableProvider for StreamingTable {
         _state: &SessionState,
         projection: Option<&Vec<usize>>,
         _filters: &[Expr],
+        _agg_with_grouping: Option<&AggWithGrouping>,
         _limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         // TODO: push limit down

@@ -35,6 +35,7 @@ use datafusion::{
 
 use async_trait::async_trait;
 use datafusion::execution::context::{SessionState, TaskContext};
+use datafusion_expr::logical_plan::AggWithGrouping;
 
 /// This is a testing structure for statistics
 /// It will act both as a table provider and execution plan
@@ -77,6 +78,7 @@ impl TableProvider for StatisticsValidation {
         _state: &SessionState,
         projection: Option<&Vec<usize>>,
         filters: &[Expr],
+        _agg_with_grouping: Option<&AggWithGrouping>,
         // limit is ignored because it is not mandatory for a `TableProvider` to honor it
         _limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {

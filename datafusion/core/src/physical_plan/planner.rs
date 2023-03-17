@@ -473,6 +473,7 @@ impl DefaultPhysicalPlanner {
                     source,
                     projection,
                     filters,
+                    agg_with_grouping,
                     fetch,
                     ..
                 }) => {
@@ -482,7 +483,13 @@ impl DefaultPhysicalPlanner {
                     // referred to in the query
                     let filters = unnormalize_cols(filters.iter().cloned());
                     let unaliased: Vec<Expr> = filters.into_iter().map(unalias).collect();
-                    source.scan(session_state, projection.as_ref(), &unaliased, *fetch).await
+                    source.scan(
+                        session_state,
+                        projection.as_ref(),
+                        &unaliased,
+                        agg_with_grouping.as_ref(),
+                        *fetch
+                    ).await
                 }
                 LogicalPlan::Values(Values {
                     values,
@@ -1659,13 +1666,16 @@ pub fn create_aggregate_expr_with_name(
                     )
                 })
                 .collect::<Result<Vec<_>>>()?;
-            aggregates::create_aggregate_expr(
+
+            let func = aggregates::create_aggregate_expr(
                 fun,
                 *distinct,
                 &args,
                 physical_input_schema,
                 name,
-            )
+            )?;
+
+            Ok(func)
         }
         Expr::AggregateUDF { fun, args, .. } => {
             let args = args
