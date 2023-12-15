@@ -667,6 +667,9 @@ fn string_concat_coercion(lhs_type: &DataType, rhs_type: &DataType) -> Option<Da
         (LargeUtf8, from_type) | (from_type, LargeUtf8) => {
             string_concat_internal_coercion(from_type, &LargeUtf8)
         }
+        (Dictionary(_, value_type) , from_type) | (from_type, Dictionary(_, value_type)) => {
+            string_concat_internal_coercion(from_type, value_type)
+        }
         // TODO: cast between array elements (#6558)
         (List(_), from_type) | (from_type, List(_)) => Some(from_type.to_owned()),
         _ => None,
@@ -707,6 +710,8 @@ fn string_coercion(lhs_type: &DataType, rhs_type: &DataType) -> Option<DataType>
         (List(_), List(_)) => Some(lhs_type.clone()),
         (List(_), _) => Some(lhs_type.clone()),
         (_, List(_)) => Some(rhs_type.clone()),
+        (Dictionary(_, value_type), rhs_type) => string_coercion(value_type, rhs_type),
+        (lhs_type, Dictionary(_, value_type)) => string_coercion(lhs_type, value_type),
         _ => None,
     }
 }

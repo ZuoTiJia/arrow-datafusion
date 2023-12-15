@@ -169,6 +169,12 @@ fn coerced_from<'a>(
 ) -> Option<DataType> {
     use self::DataType::*;
 
+    let type_from = match type_from {
+        Dictionary(_, type_from) => return coerced_from(type_into, type_from),
+        _ => type_from
+    };
+
+    // Null can convert to most of types
     match type_into {
         // coerced into type_into
         Int8 if matches!(type_from, Null | Int8) => Some(type_into.clone()),
